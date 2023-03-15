@@ -15,6 +15,6 @@ setuptools.setup(
         "Bug Tracker": ""
     },
     license='MIT',
-    packages=['toolbox'],
+    packages=['bnfx_common_libs'],
     install_requires=['kafka-python', 'urllib3'],
 )
