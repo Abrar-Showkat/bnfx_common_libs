@@ -1,8 +1,8 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-setuptools.setup(
+setup(
     name='bnfx_common_libs',
     version='0.0.1',
     author='Abrar Showkat',
@@ -15,6 +15,6 @@ setuptools.setup(
         "Bug Tracker": ""
     },
     license='MIT',
-    packages=['bnfx_common_libs'],
+    packages=find_packages(),
     install_requires=['kafka-python', 'urllib3'],
 )
