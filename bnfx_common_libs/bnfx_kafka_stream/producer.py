@@ -12,26 +12,33 @@ BROKER = os.getenv('bnfx_broker')
 #             specified, will default to localhost:9092.
 
 class Producer:
-    topic = ""
-    producer = None
-
-    def __init__(self, topic):
-        self.broker = broker
-        self.topic = topic
-        self.producer = KafkaProducer(bootstrap_servers=BROKER,
+    def __init__(topic):
+        #self.broker = broker
+        producer = None
+        broker = "127.0.0.1:9092"
+        #self.topic = topic
+        #self.producer = KafkaProducer(bootstrap_servers=self.broker,
+        producer = KafkaProducer(bootstrap_servers=broker,
         value_serializer=lambda v: json.dumps(v).encode('utf-8'),
         acks='all',
         retries = 3)
 
 
-    def SendToTopic(self, msg):
+    def SendToTopic(topic, msg):
         print("sending message...")
+        broker = "127.0.0.1:9092"
+        #self.topic = topic
+        #self.producer = KafkaProducer(bootstrap_servers=self.broker,
+        producer = KafkaProducer(bootstrap_servers=broker,
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        acks='all',
+        retries = 3)
+
         try:
-            future = self.producer.send(self.topic,msg)
-            self.producer.flush()
-            future.get(timeout=60)
+            producer.send(topic,msg)
+            producer.flush()
             print("message sent successfully...")
             return {'status_code':200, 'error':None}
         except Exception as ex:
-            return ex
+            return (str(ex))
 

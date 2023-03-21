@@ -1,4 +1,5 @@
 from kafka import KafkaConsumer, consumer
+from kafka.structs import TopicPartition
 import json
 import os
 
@@ -18,23 +19,38 @@ REQUEST_TIMEOUT_MS = os.getenv('bnfx_request_timeout_ms')
 # request_timeout_ms (int): Client request timeout in milliseconds.
 #             Default: 305000.
 # TOPIC_EVENTS = os.getenv('topic_events')
-#Subscribe to a list of topic_events, or a topic regex pattern.
+# Subscribe to a list of topic_events, or a topic regex pattern.
+
 
 class Consumer:
     broker = ""
     topic = ""
     logger = None
 
-    def __init__(self, topic, broker, group_id):
-        self.topic = topic
-        self.broker = broker
-        self.group_id = group_id
+    def __init__(topic, group_id):
+        consumer = None
+        broker = "127.0.0.1:9092"
+        #self.topic = topic
+        #self.producer = KafkaProducer(bootstrap_servers=self.broker,
+        consumer = KafkaConsumer(bootstrap_servers=broker,
+        value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+        acks='all',
+        retries = 3)
 
     def ReadFromTopic(topic):
-        consumer = KafkaConsumer(bootstrap_servers=BROKER, 
-            api_version=API_VERSION, 
-            consumer_timeout_ms=int(REQUEST_TIMEOUT_MS), 
-            enable_auto_commit=False, 
-            value_deserializer=lambda m: json.loads(m.decode('ascii')))
-        consumer.subscribe(topic)
-        return consumer
+        bootstrap_servers = '127.0.0.1:9092'
+        try:
+            consumer = KafkaConsumer(topic, bootstrap_servers=bootstrap_servers, auto_offset_reset='earliest')
+            partitions = consumer.partitions_for_topic(topic)
+            finalMsg = ""
+            for p in partitions:
+                topic_partition = TopicPartition(topic, p)
+                # Seek offset 0
+                consumer.seek(partition=topic_partition, offset=0)
+                for msg in consumer:
+                    print(msg.value.decode("utf-8"))
+                    finalMsg = finalMsg + "" + msg.value.decode("utf-8")
+            return {finalMsg}
+        except Exception as ex:
+            return (str(ex))
+    
